@@ -1,5 +1,5 @@
 // 注意：live2d_path 参数应使用绝对路径
-const live2d_path = "https://cdn.jsdelivr.net/gh/Zero-CN/live2d/";
+const live2d_path = "https://cdn.jsdelivr.net/gh/cnzeropro/live2d-widget/";
 
 // 封装异步加载资源方法
 function loadResourceAsync(url, type) {
@@ -13,12 +13,11 @@ function loadResourceAsync(url, type) {
 		} else if (type === "js") {
 			tag = document.createElement("script");
 			tag.src = url;
+		} else if(type === "icon") {
+			tag = document.createElement("link");
+			tag.rel = "icon";
+			tag.href = url;
 		}
-		// else if(type === "logo") {
-		// 	tag = document.createElement("link");
-		// 	tag.rel = "icon";
-		// 	tag.href = url;
-		// }
 
 		if (tag) {
 			tag.onload = () => resolve(url);
@@ -31,10 +30,10 @@ function loadResourceAsync(url, type) {
 // 加载所需资源
 if (screen.width >= 567) {
 	Promise.all([
-		loadResourceAsync(live2d_path + "waifu.css", "css"),
-		loadResourceAsync(live2d_path + "live2d.min.js", "js"),
-		loadResourceAsync(live2d_path + "waifu-tips.js", "js"),
-		// loadResourceAsync(live2d_path + "logo.png", "logo")
+		loadResourceAsync(live2d_path + "css/waifu.css", "css"),
+		loadResourceAsync(live2d_path + "js/live2d.min.js", "js"),
+		loadResourceAsync(live2d_path + "js/waifu-tips.js", "js"),
+		loadResourceAsync(live2d_path + "favicon/favicon.ico", "icon")
 	]).then(() => {
 		initWidget(live2d_path + "waifu-tips.json", "https://live2d.fghrsh.net/api");
 	});
