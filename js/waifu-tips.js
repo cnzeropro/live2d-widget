@@ -66,9 +66,9 @@ function loadWidget(waifuJson, apiPath) {
     waifu.style.right = live2d_settings.waifuEdgeSide[1] + "px";
     toggle.style.right = 0;
   }
-  for (let i = 0; i <= tool.getElementsByTagName("span").length; i++) {
-    tool.getElementsByTagName("span")[i].style.lineHeight = live2d_settings.waifuToolLine;
-  }
+  // for (let i = 0; i <= tool.getElementsByTagName("span").length; i++) {
+  //   tool.getElementsByTagName("span")[i].style.lineHeight = live2d_settings.waifuToolLine;
+  // }
 
   //需要 JQuery 和 JQuery UI 的加持
   try {
