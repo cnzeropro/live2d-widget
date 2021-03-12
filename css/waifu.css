@@ -2,16 +2,16 @@
 #waifu-toggle {
   width: 60px;
   font-size: 12px;
-  color: #fff;
-  background-color: #fa0;
+  color: #b689b0;
+  background-color: #fff1ac;
   cursor: pointer;
   border-radius: 5px;
   margin-left: -100px;
-  padding: 5px 2px 5px 5px;
+  padding: 5px 2px 5px 0;
   position: fixed;
   bottom: 66px;
-  transition: margin-left 1s;
-  writing-mode: vertical-rl;
+  writing-mode: vertical-rl; /*竖着书写*/
+  transition: margin-left, font-size, padding-right 1.5s, 1.5s, 1.5s; /*动画效果*/
 }
 
 #waifu-toggle.waifu-toggle-active {
@@ -19,46 +19,44 @@
 }
 
 #waifu-toggle.waifu-toggle-active:hover {
-  margin-left: -10px;
+  font-size: 14px;
+  margin-left: -40px;
+  padding-right: 10px;
 }
 
 /* end 看板娘切换按钮css */
 
-/* waifu.css */
+/* waifu css */
 #waifu {
   position: fixed;
   bottom: -1000px;
-  line-height: 0;
-  transform: translateY(3px);
+  transform: translateY(7px);
   transition: transform .3s ease-in-out, bottom 3s ease-in-out;
-  z-index: 999;
+  z-index: 1;
 }
 
 #waifu:hover {
-  transform: translateY(0);
+  transform: translateY(3px);
 }
 
-/* end waifu.css */
+/* end waifu css */
 
 /* waifu>waifu-tips.css */
 #waifu-tips {
-  animation: shake 50s ease-in-out 5s infinite;
-  width: 250px;
-  margin: -30px 20px;
-  padding: 5px 10px;
-  position: absolute;
+  margin: 10px auto;
   background-color: #ecd9bc;
   border: 1px solid #e0ba8c;
   border-radius: 12px;
   box-shadow: 0 3px 15px 2px #bf9e76;
+  text-align: center;
   font-size: 14px;
   line-height: 24px;
-  min-height: 70px;
   opacity: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: opacity 1s;
   word-break: break-all;
+  animation: shake 50s ease-in-out 5s infinite;
 }
 
 #waifu-tips.waifu-tips-active {
@@ -75,7 +73,6 @@
 /* waifu>live2d.css */
 #waifu #live2d {
   cursor: grab;
-  position: relative;
 }
 
 #waifu #live2d:active {
@@ -89,8 +86,8 @@
   color: #aaa;
   opacity: 0;
   position: absolute;
-  right: -10px;
-  top: 70px;
+  right: -25px;
+  top: 80px;
   transition: opacity 1s;
 }
 
@@ -102,7 +99,6 @@
   cursor: pointer;
   color: #5b6c7d;
   display: block;
-  line-height: 30px;
   text-align: center;
   transition: color .3s;
 }
@@ -113,6 +109,13 @@
 }
 
 /* end waifu>waifu-tool.css */
+
+/*当页面小于 567px 组件消失*/
+@media only screen and (max-width: 567px) {
+  #waifu {
+    display: none;
+  }
+}
 
 /* 抖动动画定义 */
 @keyframes shake {
@@ -318,17 +321,16 @@
   }
 }
 
+/*自定义字体与图标*/
 @font-face {
-  font-family: 'FontAwesome';
-  src: url('../fonts/fontawesome-webfont.eot?v=3.2.1');
-  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=3.2.1') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=3.2.1') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=3.2.1') format('truetype'), url('../fonts/fontawesome-webfont.svg#fontawesomeregular?v=3.2.1') format('svg');
-  font-weight: normal;
-  font-style: normal;
+  font-family: "FontAwesomeUI";
+  src: url('../fonts/fontawesome-webfont.eot?v=4.7.0');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('../fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
 }
 
-[class^="fui-"],
-[class*="fui-"] {
-  font-family: 'Flat-UI-Icons';
+[class^="faui-"],
+[class*="faui-"] {
+  font-family: "FontAwesomeUI", serif;
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -338,30 +340,34 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.fui-cross:before {
-  content: "\e609";
+.faui-home:before {
+  content: "\f015";
 }
 
-.fui-info-circle:before {
-  content: "\e60f";
+.faui-msg:before {
+  content: "\f075";
 }
 
-.fui-photo:before {
-  content: "\e62a";
+.faui-game:before {
+  content: "\f1d8";
 }
 
-.fui-eye:before {
-  content: "\e62c";
+.faui-model:before {
+  content: "\f007";
 }
 
-.fui-chat:before {
-  content: "\e62d";
+.faui-textures:before {
+  content: "\f21d";
 }
 
-.fui-home:before {
-  content: "\e62e";
+.faui-photo:before {
+  content: "\f03e";
 }
 
-.fui-user:before {
-  content: "\e631";
+.faui-about:before {
+  content: "\f129";
+}
+
+.faui-remove:before {
+  content: "\f00d";
 }

@@ -1,8 +1,3 @@
-/*
- * Live2D Widget
- * https://github.com/cnzeropro/live2d-widget
- */
-
 //加载部件
 function loadWidget(waifuJson, apiPath) {
   if (typeof apiPath === "string") {
@@ -18,15 +13,16 @@ function loadWidget(waifuJson, apiPath) {
   document.body.insertAdjacentHTML("beforeend",
       `<div id="waifu">
 			<div id="waifu-tips"></div>
-			<canvas id="live2d"></canvas>
+			<canvas id="live2d" width="300" height="300"></canvas>
 			<div id="waifu-tool">
-				<span class="fa fa-lg fa-comment"></span>
-				<span class="fa fa-lg fa-paper-plane"></span>
-				<span class="fa fa-lg fa-user-circle"></span>
-				<span class="fa fa-lg fa-street-view"></span>
-				<span class="fa fa-lg fa-camera-retro"></span>
-				<span class="fa fa-lg fa-info-circle"></span>
-				<span class="fa fa-lg fa-times"></span>
+			  <span class="faui-home"></span>
+				<span class="faui-msg"></span>
+				<span class="faui-game"></span>
+				<span class="faui-model"></span>
+				<span class="faui-textures"></span>
+				<span class="faui-photo"></span>
+				<span class="faui-about"></span>
+				<span class="faui-remove"></span>
 			</div>
 		</div>`
   );
@@ -41,33 +37,35 @@ function loadWidget(waifuJson, apiPath) {
   let live2d = document.getElementById("live2d");
   let tool = document.getElementById("waifu-tool");
 
-
   // 加载看板娘样式
-  live2d.style.width = live2d_settings.waifuSize[0];
-  live2d.style.height = live2d_settings.waifuSize[1];
-  tips.style.width = live2d_settings.waifuTipsSize[0];
-  tips.style.height = live2d_settings.waifuTipsSize[1];
+  waifu.style.width = live2d_settings.waifuSize[0] + "px";
+  waifu.style.height = live2d_settings.waifuSize[1] + "px";
+  tips.style.width = live2d_settings.waifuTipsSize[0] + "px";
+  tips.style.height = live2d_settings.waifuTipsSize[1] + "px";
   tips.style.top = live2d_settings.waifuToolTop;
   tips.style.fontSize = live2d_settings.waifuFontSize;
-
   if (!live2d_settings.showOneSentence) tips.style.display = "none";
   if (!live2d_settings.showToolMenu) tool.style.display = "none";
-  if (!live2d_settings.showSwitchOneSentence) tool.getElementsByTagName("span")[0].style.display = "none";// 一言按钮
-  if (!live2d_settings.showGame) tool.getElementsByTagName("span")[1].style.display = "none";// game按钮
-  if (!live2d_settings.showSwitchModel) tool.getElementsByTagName("span")[2].style.display = "none";// 模型切换按钮
-  if (!live2d_settings.showSwitchTextures) tool.getElementsByTagName("span")[3].style.display = "none";//材质切换按钮
-  if (!live2d_settings.showTakeScreenshot) tool.getElementsByTagName("span")[4].style.display = "none";//截图按钮
-  if (!live2d_settings.showTurnToAboutPage) tool.getElementsByTagName("span")[5].style.display = "none";// 关于页按钮
-  if (!live2d_settings.showCloseWaifu) tool.getElementsByTagName("span")[6].style.display = "none";//关闭看板娘按钮
+  if (!live2d_settings.showTurnToHomePage) tool.getElementsByTagName("span")[0].style.display = "none";// 主页按钮
+  if (!live2d_settings.showSwitchOneSentence) tool.getElementsByTagName("span")[1].style.display = "none";// 一言按钮
+  if (!live2d_settings.showGame) tool.getElementsByTagName("span")[2].style.display = "none";// game按钮
+  if (!live2d_settings.showSwitchModel) tool.getElementsByTagName("span")[3].style.display = "none";// 模型切换按钮
+  if (!live2d_settings.showSwitchTextures) tool.getElementsByTagName("span")[4].style.display = "none";// 材质切换按钮
+  if (!live2d_settings.showTakeScreenshot) tool.getElementsByTagName("span")[5].style.display = "none";// 截图按钮
+  if (!live2d_settings.showTurnToAboutPage) tool.getElementsByTagName("span")[6].style.display = "none";// 关于页按钮
+  if (!live2d_settings.showCloseWaifu) tool.getElementsByTagName("span")[7].style.display = "none";// 关闭看板娘按钮
   if (live2d_settings.waifuEdgeSide[0] == "left") {
     waifu.style.left = live2d_settings.waifuEdgeSide[1] + "px";
-    toggle.style.left = 0;
   } else if (live2d_settings.waifuEdgeSide[0] == "right") {
     waifu.style.right = live2d_settings.waifuEdgeSide[1] + "px";
-    toggle.style.right = 0;
   }
+  for (let i = 0; i < tool.getElementsByTagName("span").length; i++) {
+    tool.getElementsByTagName("span")[i].style.lineHeight = live2d_settings.waifuToolLine;
+  }
+  live2d_settings.homePageURL = live2d_settings.homePageURL == "auto" ? window.location.protocol + "//" + window.location.hostname + '/' : live2d_settings.homePageURL;
+  if (window.location.protocol == "file:" && live2d_settings.waifuAPI.substr(0, 2) == "//") live2d_settings.waifuAPI = "http:" + live2d_settings.waifuAPI;
 
-  //需要 JQuery 和 JQuery UI 的加持
+  // 拖拽操作需要 JQuery 和 JQuery UI 的加持
   try {
     if (live2d_settings.waifuDraggable == 'axis-x') {
       $(".waifu").draggable({
@@ -83,7 +81,7 @@ function loadWidget(waifuJson, apiPath) {
     console.log('[Error] JQuery and JQuery UI are not defined.')
   }
 
-  //部件浮现
+  // 部件浮现
   setTimeout(() => {
     waifu.style.bottom = 0;
   }, 100);
@@ -139,26 +137,24 @@ function loadWidget(waifuJson, apiPath) {
           });
 
           //"click"事件处理
-          result.click.forEach(tips => {
-            window.addEventListener("click", event => {
-              for (let {selector, text} of result.click) {
-                if (!event.target.matches(selector)) continue;
-                text = randomSelection(text);
-                text = text.replace("{text}", event.target.innerText);
-                showMessage(text, 4000, 8);
-                return;
-              }
-            });
+          window.addEventListener("click", event => {
+            for (let {selector, text} of result.click) {
+              if (!event.target.matches(selector)) continue;
+              text = randomSelection(text);
+              text = text.replace("{text}", event.target.innerText);
+              showMessage(text, 4000, 8);
+              return;
+            }
           });
 
-          //"festival"事件处理
+          // "festival"事件处理
           result.festival.forEach(({date, text}) => {
             let dateNow = new Date(),
                 before = date.split("-")[0],
                 after = date.split("-")[1] || before,
                 now;
 
-            //重写时间格式为XX/XX
+            // 重写时间格式为XX/XX
             if (dateNow.getMonth() + 1 < 10) {
               now = "0";
             }
@@ -169,11 +165,11 @@ function loadWidget(waifuJson, apiPath) {
             now += dateNow.getDate();
 
             if (before <= now && after >= now) { //利用字符串对比规则
-              let text = randomSelection(text)
-              text = text.replace("{year}", now.getFullYear()); //普通处理
+              text = randomSelection(text);
+              text = text.replace("{year}", dateNow.getFullYear()); // 普通处理
               text = text.replace("{year-1949}", dateNow.getFullYear() - 1949); //国庆节处理
               messageArray.push(text);
-              //showMessage(text, 7000, 5);
+              // showMessage(text, 7000, 5);
             }
           });
         });
@@ -181,35 +177,39 @@ function loadWidget(waifuJson, apiPath) {
 
   //添加事件监听
   (function registerEventListener() {
-    //为fa-comment图标添加"一言"接口
-    document.querySelector("#waifu-tool .fa-comment").addEventListener("click", showOneSentence);
-    //为fa-paper-plane图标添加"打飞机"小游戏
-    document.querySelector("#waifu-tool .fa-paper-plane").addEventListener("click", () => {
+    //为faui-home图标添加“回到主页”方法
+    document.querySelector("#waifu-tool .faui-home").addEventListener("click", () => {
+      open(live2d_settings.homePageURL);
+    });
+    //为faui-msg图标添加"一言"接口
+    document.querySelector("#waifu-tool .faui-msg").addEventListener("click", showOneSentence);
+    //为faui-game图标添加"打飞机"小游戏
+    document.querySelector("#waifu-tool .faui-game").addEventListener("click", () => {
       if (window.Asteroids) {
         if (!window.ASTEROIDSPLAYERS) window.ASTEROIDSPLAYERS = [];
         window.ASTEROIDSPLAYERS.push(new Asteroids());
       } else {
         const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/gh/cnzeropro/live2d-widget/js/asteroids.js";
+        script.src = live2d_settings.resourcePath + "js/asteroids.js";
         document.head.appendChild(script);
       }
     });
-    //为fa-user-circle图标添加"换角色"方法
-    document.querySelector("#waifu-tool .fa-user-circle").addEventListener("click", switchModel);
-    //为fa-street-view图标添加"换装"方法
-    document.querySelector("#waifu-tool .fa-street-view").addEventListener("click", switchTextures);
-    //为fa-camera-retro图标添加"照相"方法
-    document.querySelector("#waifu-tool .fa-camera-retro").addEventListener("click", () => {
+    //为faui-model图标添加"换角色"方法
+    document.querySelector("#waifu-tool .faui-model").addEventListener("click", switchModel);
+    //为faui-textures图标添加"换装"方法
+    document.querySelector("#waifu-tool .faui-textures").addEventListener("click", switchTextures);
+    //为faui-photo图标添加"照相"方法
+    document.querySelector("#waifu-tool .faui-photo").addEventListener("click", () => {
       showMessage("照好了嘛，是不是很可爱呢？", 5000, 7);
-      Live2D.captureName = "photo.png";
+      Live2D.captureName = live2d_settings.screenshotCaptureName;
       Live2D.captureFrame = true;
     });
-    //为fa-info-circle图标添加“关于项目”方法
-    document.querySelector("#waifu-tool .fa-info-circle").addEventListener("click", () => {
-      open("https://github.com/cnzeropro/live2d-widget/");
+    //为faui-about图标添加“关于项目”方法
+    document.querySelector("#waifu-tool .faui-about").addEventListener("click", () => {
+      open(live2d_settings.aboutPageURL);
     });
-    //为fa-times图标添加“隐藏”方法
-    document.querySelector("#waifu-tool .fa-times").addEventListener("click", () => {
+    //为faui-remove图标添加“隐藏”方法
+    document.querySelector("#waifu-tool .faui-remove").addEventListener("click", () => {
       localStorage.setItem("waifu-display", Date.now()); //存储“隐藏”状态
       showMessage("愿你有一天能和重要的人重逢。", 2000, 9);
       waifu.style.bottom = "-1000px";
@@ -225,18 +225,18 @@ function loadWidget(waifuJson, apiPath) {
       };
       console.log("%c", devtools);
       devtools.toString = () => {
-        showMessage("嘿嘿,你打开了控制台,是想要看看我的小秘密吗？", 5000, 7);
+        showMessage("嘿嘿，你打开了控制台，是想要看看我的小秘密吗？", 5000, 7);
       };
     }
     //复制
     if (live2d_settings.showCopyMessage) {
       window.addEventListener("copy", () => {
-        showMessage("你都复制了些什么呀,转载记得加上出处哦！", 5000, 7);
+        showMessage("你都复制了些什么呀，转载记得加上出处哦！", 5000, 7);
       });
     }
     //“离开”后“回来”
     window.addEventListener("visibilitychange", () => {
-      if (!document.hidden) showMessage("哇,你终于回来了~", 5000, 7);
+      if (!document.hidden) showMessage("哇，你终于回来了~", 5000, 7);
     });
   })();
 
@@ -262,7 +262,7 @@ function loadWidget(waifuJson, apiPath) {
       } else {
         text = "你是夜猫子呀？这么晚还不睡觉，明天起得来嘛？";
       }
-    } else if (document.referrer !== "") {//打开了页面
+    } else if (document.referrer != "") {// 如果是直接访问页面或通过搜索访问页面的方式
       const referrer = new URL(document.referrer),
           domain = referrer.hostname.split(".")[1];
       if (location.hostname == referrer.hostname) {
@@ -282,7 +282,7 @@ function loadWidget(waifuJson, apiPath) {
     showMessage(text, 7000, 8);
   })();
 
-  //随机选择信息
+  // 随机选择信息
   function randomSelection(obj) {
     return Array.isArray(obj) ? obj[Math.floor(Math.random() * obj.length)] : obj;
   }
@@ -401,11 +401,11 @@ function loadWidget(waifuJson, apiPath) {
 }
 
 //初始化部件
-function initWidget(waifuJson = "json/waifu-tips.json", apiPath) {
+function initWidget(waifuJson = live2d_settings.resourcePath + "json/waifu-tips.json", apiPath) {
   //窗口小于live2d_settings['waifuMinWidth']不显示部件
   if (screen.width <= live2d_settings.waifuMinWidth) return;
 
-  // 添加看板娘按钮
+  // 添加看板娘切换按钮
   document.body.insertAdjacentHTML("beforeend", `
 		<div id="waifu-toggle">
 			<span>看板娘</span>
@@ -415,13 +415,13 @@ function initWidget(waifuJson = "json/waifu-tips.json", apiPath) {
   //添加"点击"事件监听
   toggle.addEventListener("click", () => {
     toggle.classList.remove("waifu-toggle-active");
-
     if (toggle.getAttribute("first-time")) {
       loadWidget(waifuJson, apiPath);
       toggle.removeAttribute("first-time");
-    } else {//已经使用过部件了
+    } else {
+      //重置显示状态
       localStorage.removeItem("waifu-display");
-      document.getElementById("waifu").style.display = ""; //重置显示状态
+      document.getElementById("waifu").style.display = "";
       setTimeout(() => {
         document.getElementById("waifu").style.bottom = 0;
       }, 0);
@@ -429,7 +429,6 @@ function initWidget(waifuJson = "json/waifu-tips.json", apiPath) {
   });
 
   if (localStorage.getItem("waifu-display") && Date.now() - localStorage.getItem("waifu-display") <= 86400000) {
-    //存储为第一次使用状态
     toggle.setAttribute("first-time", true);
     // 隐藏看板娘（显示看板娘激活按钮）
     setTimeout(() => {
