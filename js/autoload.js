@@ -78,7 +78,7 @@ Promise.all([
   // loadResourceAsync(live2d_settings.resourcePath + "favicon/favicon.ico", "icon")
   loadResourceAsync(live2d_settings.resourcePath + "css/waifu.css", "css"),
   // loadResourceAsync(live2d_settings.resourcePath + "css/fontawesome.min.css", "css"),
-  loadResourceAsync(live2d_settings.resourcePath + "js/live2.min.js", "js"),
+  loadResourceAsync(live2d_settings.resourcePath + "js/live2.js", "js"),
   loadResourceAsync(live2d_settings.resourcePath + "js/waifu-tips.js", "js"),
 ]).then(() => {
   initWidget(live2d_settings.resourcePath + "json/waifu-tips.json", live2d_settings.waifuAPI);
