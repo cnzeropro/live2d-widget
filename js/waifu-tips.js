@@ -3,7 +3,7 @@ function loadWidget(waifuJson, apiPath) {
   if (typeof apiPath === "string") {
     if (!apiPath.endsWith("/")) apiPath += "/";
   } else {
-    console.error("API路径错误！！！");
+    console.error("Waifu API路径设置错误！！！");
     return;
   }
   //清空存储的状态
@@ -65,20 +65,20 @@ function loadWidget(waifuJson, apiPath) {
   live2d_settings.homePageURL = live2d_settings.homePageURL == "auto" ? window.location.protocol + "//" + window.location.hostname + '/' : live2d_settings.homePageURL;
   if (window.location.protocol == "file:" && live2d_settings.waifuAPI.substr(0, 2) == "//") live2d_settings.waifuAPI = "http:" + live2d_settings.waifuAPI;
 
-  // 拖拽操作需要 JQuery 和 JQuery UI 的加持
+  // 拖拽操作需要 JQuery 和 JQuery UI 的支持
   try {
-    if (live2d_settings.waifuDraggable == 'axis-x') {
+    if (live2d_settings.waifuDraggable == "axis-x") {
       $(".waifu").draggable({
         axis: "x",
         revert: live2d_settings.waifuDraggableRevert
       });
-    } else if (live2d_settings.waifuDraggable == 'unlimited') {
+    } else if (live2d_settings.waifuDraggable == "unlimited") {
       $(".waifu").draggable({revert: live2d_settings.waifuDraggableRevert});
     } else {
       $(".waifu").css("transition", 'all .3s ease-in-out');
     }
   } catch (err) {
-    console.log('[Error] JQuery and JQuery UI are not defined.')
+    console.log("[Error] JQuery and JQuery UI are not defined.");
   }
 
   // 部件浮现
@@ -90,14 +90,18 @@ function loadWidget(waifuJson, apiPath) {
   let userAction = false,
       messageTimer,
       userActionTimer,
-      messageArray = ["好久不见，时间过得好快呢~~", "大坏蛋！你都多久没理人家了呀,嘤嘤嘤～", "嗨~快来逗我玩吧！", "拿小拳拳锤你胸口！", "记得把小家加入 Adblock 白名单哦！"];
+      messageArray = ["好久不见，时间过得好快呢~~",
+        "大坏蛋！你都多久没理人家了呀，嘤嘤嘤～",
+        "嗨~快来逗我玩吧！",
+        "拿小拳拳锤你胸口！",
+        "记得把小家加入拦截白名单哦！"];
   //检测用户活动状态
   window.addEventListener("mousemove", () => userAction = true);
   window.addEventListener("keydown", () => userAction = true);
   //每隔一秒探测用户活动状态
   setInterval(() => {
     if (userAction) {
-      //用户活动中,清空用户活动计时器
+      //用户活动中，清空用户活动计时器
       userAction = false;
       clearInterval(userActionTimer);
       userActionTimer = null;
@@ -119,7 +123,7 @@ function loadWidget(waifuJson, apiPath) {
       modelId = live2d_settings.modelId;
       texturesId = live2d_settings.texturesId;
     }
-    loadModelAndTextures(modelId, texturesId);
+    loadModelAndTextures(modelId, texturesId).then(() => console.log("欢迎使用 Live2d 看板娘"));
 
     //waifu-tips.json解析
     fetch(waifuJson)
@@ -147,7 +151,7 @@ function loadWidget(waifuJson, apiPath) {
             }
           });
 
-          // "festival"事件处理
+          // "festival"处理
           result.festival.forEach(({date, text}) => {
             let dateNow = new Date(),
                 before = date.split("-")[0],
@@ -164,7 +168,8 @@ function loadWidget(waifuJson, apiPath) {
             }
             now += dateNow.getDate();
 
-            if (before <= now && after >= now) { //利用字符串对比规则
+            // 利用字符串对比规则判断当前是否处于节日时间段
+            if (before <= now && after >= now) {
               text = randomSelection(text);
               text = text.replace("{year}", dateNow.getFullYear()); // 普通处理
               text = text.replace("{year-1949}", dateNow.getFullYear() - 1949); //国庆节处理
@@ -179,7 +184,7 @@ function loadWidget(waifuJson, apiPath) {
   (function registerEventListener() {
     //为faui-home图标添加“回到主页”方法
     document.querySelector("#waifu-tool .faui-home").addEventListener("click", () => {
-      open(live2d_settings.homePageURL);
+      open(live2d_settings.homePageURL, "_self");
     });
     //为faui-msg图标添加"一言"接口
     document.querySelector("#waifu-tool .faui-msg").addEventListener("click", showOneSentence);
@@ -200,7 +205,7 @@ function loadWidget(waifuJson, apiPath) {
     document.querySelector("#waifu-tool .faui-textures").addEventListener("click", switchTextures);
     //为faui-photo图标添加"照相"方法
     document.querySelector("#waifu-tool .faui-photo").addEventListener("click", () => {
-      showMessage("照好了嘛，是不是很可爱呢？", 5000, 7);
+      showMessage("照好了嘛，是不是很可爱呢？", 5000, 9);
       Live2D.captureName = live2d_settings.screenshotCaptureName;
       Live2D.captureFrame = true;
     });
@@ -246,17 +251,17 @@ function loadWidget(waifuJson, apiPath) {
     if (location.pathname == "/") { // 如果是主页
       const now = new Date().getHours();
       if (now > 5 && now <= 7) {
-        text = "早上好！一日之计在于晨，美好的一天就要开始了。";
+        text = "hi！早上好！一日之计在于晨，美好的一天就要开始了。";
       } else if (now > 7 && now <= 11) {
-        text = "上午好！工作顺利嘛，不要久坐，多起来走动走动哦！";
+        text = "上午好！工作学习顺利嘛，不要久坐，多起来走动走动哦！";
       } else if (now > 11 && now <= 13) {
-        text = "中午了，工作了一个上午，快快去干饭吧！";
+        text = "中午了，工作了一个上午，我都快饿了，一起去干饭吧！";
       } else if (now > 13 && now <= 17) {
-        text = "午后很容易犯困呢，今天的运动目标完成了吗？";
+        text = "午后很容易犯困呢，不过还是要打起十二分的精神，小家会陪您一起努力的 q(≧▽≦q)";
       } else if (now > 17 && now <= 19) {
         text = "傍晚了！窗外夕阳的景色很美丽呢，最美不过夕阳红~";
       } else if (now > 19 && now <= 21) {
-        text = "晚上好，今天过得怎么样？";
+        text = "晚上好，今天过得怎么样？工作学习目标完成了吗？";
       } else if (now > 21 && now <= 23) {
         text = ["已经这么晚了呀，早点休息吧,晚安～", "深夜时要爱护眼睛呀！"];
       } else {
@@ -268,9 +273,9 @@ function loadWidget(waifuJson, apiPath) {
       if (location.hostname == referrer.hostname) {
         text = `欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
       } else if (domain == "baidu") {
-        text = `Hello！来自 百度搜索 的朋友<br/>你是搜索 <span>${referrer.search.split("&wd=")[1].split("&")[0]}</span> 找到的我吗？`;
+        text = `Hello！来自 百度搜索 的朋友<br/>你是搜索 <span>${referrer.search.split("&wd=")[1].split("&")[0]}</span> 找到的我吗？<br/>欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
       } else if (domain == "so") {
-        text = `Hello！来自 360搜索 的朋友<br/>你是搜索 <span>${referrer.search.split("&q=")[1].split("&")[0]}</span> 找到的我吗？`;
+        text = `Hello！来自 360搜索 的朋友<br/>你是搜索 <span>${referrer.search.split("&q=")[1].split("&")[0]}</span> 找到的我吗？<br/>欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
       } else if (domain == "google") {
         text = `Hello！来自 谷歌搜索 的朋友<br/>欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
       } else {
@@ -279,7 +284,7 @@ function loadWidget(waifuJson, apiPath) {
     } else {
       text = `不知名星球的朋友，欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
     }
-    showMessage(text, 7000, 8);
+    showMessage(text, 7000, 9);
   })();
 
   // 随机选择信息
@@ -299,18 +304,18 @@ function loadWidget(waifuJson, apiPath) {
               setTimeout(() => {
                 showMessage(text, 4000, 8);
               }, 6000);
-            });
+            }).catch(error => console.error(error));
         break;
       case "hitokoto.cn":
         fetch("https://v1.hitokoto.cn")
             .then(response => response.json())
             .then(result => {
               showMessage(result.hitokoto, 6000, 9);
-              const text = `这一句来自 <span>「${result.from}」</span>，是 <span>${result.creator}</span> 在 hitokoto 投稿的喔。`;
+              const text = `这一句来自 <span>「${result.from}」</span>，喜欢吗？ φ(゜▽゜*)♪ 是 <span>${result.creator}</span> 投稿的喔`;
               setTimeout(() => {
                 showMessage(text, 4000, 8);
               }, 6000);
-            });
+            }).catch(error => console.error(error));
         break;
       case "jinrishici.com":
         fetch("https://v2.jinrishici.com/one.json")
@@ -318,18 +323,18 @@ function loadWidget(waifuJson, apiPath) {
             .then(result => {
               showMessage(result.data.content, 5000, 9);
               const text =
-                  `这一句诗词来自<span>${result.data.origin.dynasty}</span>·<span>${result.data.origin.author}</span><span>【${result.data.origin.title}】</span>~ 要熟背古诗词呀!`;
+                  `偷偷告述你这一句诗词来自<span>${result.data.origin.dynasty}</span>·<span>${result.data.origin.author}</span><span>【${result.data.origin.title}】</span>~ 要熟背古诗词呀! ＞︿＜`;
               setTimeout(() => {
                 showMessage(text, 4000, 8);
               }, 5000);
-            });
+            }).catch(error => console.error(error));
         break;
       case "ipayy.net":
         fetch("https://cdn.ipayy.net/says/api.php")
             .then(response => response.json())
             .then(result => {
               showMessage(result, 6000, 9);
-            });
+            }).catch(error => console.error(error));
         break;
       default:
         showMessage(`一言 API 设置错误哟~`, 4000, 8);
@@ -368,7 +373,7 @@ function loadWidget(waifuJson, apiPath) {
         .then(result => {
           loadModelAndTextures(result.model.id);
           showMessage(result.model.message, 4000, 8);
-        });
+        }).catch(error => console.error(error));
   }
 
   //”换装“方法
@@ -384,7 +389,7 @@ function loadWidget(waifuJson, apiPath) {
           } else {
             showMessage("我的新衣服好看嘛？", 4000, 8);
           }
-        });
+        }).catch(error => console.error(error));
   }
 
   //模型和材质

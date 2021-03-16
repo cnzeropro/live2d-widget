@@ -1,35 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
   <title>看板娘登陆平台</title>
 
-  <link rel="icon" href="../favicon/favicon.png">
-  <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="../css/fontawesome.min.css"/>
-
-  <script src="../js/live2d.js" type="text/javascript"></script>
+  <link rel="icon" href="../favicon/favicon.ico">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha256-T/zFmO5s/0aSwc6ics2KLxlfbewyRz6UNw1s3Ppf5gE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+        integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 
   <style>
-    html, body {
-      height: 100%;
-    }
 
     body {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding-top: 40px;
-      padding-bottom: 40px;
+      padding-top: 10px;
       background-color: #f5f5f5;
     }
 
     .signin {
-      width: 100%;
-      max-width: 330px;
-      padding: 15px;
+      width: 500px;
+      max-width: 350px;
       margin: 0 auto;
     }
 
@@ -76,6 +71,11 @@
       width: 2em;
       height: 2em;
       border-radius: 50%;
+    }
+
+    #msg {
+      height: 30px;
+      color: #e85eaa;
     }
 
     #inner {
@@ -146,78 +146,87 @@
 </head>
 
 <body class="text-center">
-<form class="signin" action="login.php" method="post">
+<form class="signin" action="" method="post">
   <div id="stage">
+    <div id="msg"></div>
     <div id="inner">
       <div id="cover">
         <div id="text">
-          <span style="color: white;">POWER BY </span><span style="color: cyan">ZERO</span>
+          <span style="color: #e7b5b5;">POWER BY </span><span style="color: cyan">ZERO</span>
         </div>
         <div id="detail"></div>
         <div id="handle"></div>
       </div>
       <canvas class="mb-4" id="live2d" width="300" height="300"></canvas>
     </div>
-    <a id="message" href="javascript:message()"><i class="fa fa-comment-dots fa-lg"></i></a>
-    <a id="refresh" href="javascript:refresh()"><i class="fa fa-undo fa-lg"></i></a>
+    <a id="message" href="javascript:message()"><i class="fa fa-comment-o fa-lg" aria-hidden="true"></i></a>
+    <a id="refresh" href="javascript:refresh()"><i class="fa fa-undo fa-lg" aria-hidden="true"></i></a>
   </div>
 
-  <h3 class="mb-3 font-weight-normal">看板娘登陆平台</h3>
+  <h4 class="mb-3 font-weight-normal">看板娘登陆平台</h4>
   <input type="text" name="user" class="form-control" placeholder="用户名" required autofocus>
   <input type="password" name="pass" class="form-control" placeholder="密码" required>
 
   <div class="checkbox mb-3">
-    <label>
-      <input type="checkbox" value="remember-me"> 记住我
-    </label>
+    <input type="checkbox" value="remember-me"> 记住我
   </div>
 
   <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
 
-  <p class="mt-5 mb-3 text-muted">Copyleft &copy; Zero 2020</p>
+  <div class="mt-5 mb-3 text-muted">
+    <div>Copyright &copy; 2019 - <span id="now"></span> Zero</div>
+    <div>All Rights Reserved.</div>
+  </div>
 </form>
+
+<script src="../js/live2d.js" charset="utf-8"></script>
 
 <script>
   window.addEventListener("load", () => {
     "use strict";
+    // 页脚填充年份
+    document.getElementById("now").innerText = new Date().getFullYear();
+
+    let apiPath = "https://live2d.fghrsh.net/api", // waifu API
+        oneSentenceAPI = "hitokoto.cn", // 一言 API，可选 'lwl12.com', 'hitokoto.cn', 'jinrishici.com'(古诗词)
+        state = 0, // ”门帘“状态
+        modelId = localStorage.getItem("modelId"), // 模型 ID
+        texturesId = localStorage.getItem("texturesId"); // 材质 ID
 
     //确保浏览器支持CSS剪切操作
     if (!CSS.supports("clip-path", "circle(120px at center)") && !CSS.supports("-webkit-clip-path", "circle(120px at center)")) {
-      document.getElementById("stage").innerHTML = '<img src="../img/img1.png" />';
+      document.getElementById("stage").innerHTML = '<img src="../img/img1.png" alt="看板娘跑路咯！"/>';
       return;
     }
 
-    var apiPath = "https://live2d.fghrsh.net/api", // API 路径
-        state = 0, // 状态
-        modelId = localStorage.getItem("modelId"), // 模型 ID
-        modelTexturesId = localStorage.getItem("modelTexturesId"); // 材质 ID
     // 首次访问加载指定模型的指定材质
     if (modelId == null) {
       modelId = 1;
-      modelTexturesId = 53;
+      texturesId = 53;
     }
-    loadModel(modelId, modelTexturesId);
+    loadModelAndTextures(modelId, texturesId);
 
-    function loadModel(modelId, modelTexturesId) {
+    //加载模型和皮肤
+    function loadModelAndTextures(modelId, texturesId) {
       localStorage.setItem("modelId", modelId); // 存储模型 ID
-      if (modelTexturesId === undefined) modelTexturesId = 0; // 如果未传入材质 ID ,默认使用 0 号材质
-      localStorage.setItem("modelTexturesId", modelTexturesId); // 存储材质 ID
-      loadlive2d("live2d", `${apiPath}/get/?id=${modelId}-${modelTexturesId}`, null);
-      console.log("live2d", `模型 ${modelId}-${modelTexturesId} 加载完成`);
+      if (texturesId === undefined) texturesId = 0; // 如果未传入材质 ID ,默认使用 0 号材质
+      localStorage.setItem("texturesId", texturesId); // 存储材质 ID
+      loadlive2d("live2d", `${apiPath}/get/?id=${modelId}-${texturesId}`, console.log("live2d", `模型 ${modelId}-${texturesId} 加载完成`));
       setTimeout(() => {
         coverPosition("80%");
         state = 2;
       }, 2000);
     }
 
-    function loadShift() {
-      var modelId = localStorage.getItem("modelId"),
-          modelTexturesId = localStorage.getItem("modelTexturesId");
+    // 材质切换函数
+    function switchTextures() {
+      const modelId = localStorage.getItem("modelId"),
+          texturesId = localStorage.getItem("texturesId");
       // 可选 "rand"(随机), "switch"(顺序)
-      fetch(`${apiPath}/rand_textures/?id=${modelId}-${modelTexturesId}`)
+      fetch(`${apiPath}/rand_textures/?id=${modelId}-${texturesId}`)
           .then(response => response.json())
           .then(result => {
-            loadModel(modelId, result.textures.id);
+            loadModelAndTextures(modelId, result.textures.id);
             setTimeout(() => {
               state = 2;
               coverPosition("80%");
@@ -228,40 +237,38 @@
 
     // 显示一言
     window.message = () => {
-      // 一言 API,可选 'lwl12.com', 'hitokoto.cn', 'jinrishici.com'(古诗词)
-      var oneSentenceAPI = "jinrishici.com";
-      var text;
       switch (oneSentenceAPI) {
         case "lwl12.com":
           fetch("https://api.lwl12.com/hitokoto/v1?encode=realjson")
               .then(response => response.json())
               .then(result => {
-                alert("「" + result.source + "」——" + result.author);
-              });
+                document.getElementById("msg").innerText = "「" + result.text + "」——" + result.author;
+              }).catch(error => console.error(error));
           break;
         case "hitokoto.cn":
           fetch("https://v1.hitokoto.cn")
               .then(response => response.json())
               .then(result => {
-                alert("「" + result.hitokoto + "」——" + result.from);
-              });
+                document.getElementById("msg").innerText = "「" + result.hitokoto + "」——" + result.from;
+              }).catch(error => console.error(error));
           break;
         case "jinrishici.com":
           fetch("https://v2.jinrishici.com/one.json")
               .then(response => response.json())
               .then(result => {
-                alert("「" + result.data.content + "」——" + result.data.origin.dynasty + "·" + result.data.origin.author + "【" + result.data.origin.title + "】");
-              });
+                document.getElementById("msg").innerText = "「" + result.data.content + "」——" + result.data.origin.dynasty + "·" + result.data.origin.author + "【" + result.data.origin.title + "】";
+              }).catch(error => console.error(error));
           break;
+        default:
+          document.getElementById("msg").innerText = "一言 API 设置错误哟~";
       }
     }
-
-    // 材质变换
+    // 变换”皮肤“
     window.refresh = () => {
       state = 0;
       coverPosition("10%");
       document.getElementById("refresh").setAttribute("href", "javascript:void(0)");
-      setTimeout(loadShift, 1000);
+      setTimeout(switchTextures, 1000);
     }
 
     // “门帘”处理
@@ -269,26 +276,26 @@
       document.getElementById("cover").style.bottom = pos;
     }
 
-    // 把手点击事件处理
+    // 门把手点击事件处理
     document.getElementById("handle").addEventListener("click", () => {
-      if (state == 1) {
+      if (state === 1) {
         state = 2;
         coverPosition("80%");
-      } else if (state == 2) {
+      } else if (state === 2) {
         state = 1;
         coverPosition("20%");
       }
     });
     // 密码框获得焦点时
     document.querySelector("input[type=password]").addEventListener("focus", () => {
-      if (state == 2) {
+      if (state === 2) {
         state = 1;
         coverPosition("20%");
       }
     });
     // 密码框失去焦点时
     document.querySelector("input[type=password]").addEventListener("blur", () => {
-      if (state == 1) {
+      if (state === 1) {
         state = 2;
         coverPosition("80%");
       }

@@ -82,6 +82,9 @@ Promise.all([
   loadResourceAsync(live2d_settings.resourcePath + "js/waifu-tips.js", "js"),
 ]).then(() => {
   initWidget(live2d_settings.jsonPath, live2d_settings.waifuAPI);
+}).catch(err => {
+  console.error("Waifu 资源文件加载出错！！！");
+  console.error(err);
 });
 
 console.log(`
