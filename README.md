@@ -17,8 +17,8 @@
 
 ## 在线演示
 
-- [demo1：基础接入示例](demo/demo1.html)
-- [demo2：登录页"门帘"交互示例](demo/demo2.html)
+- [demo1：基础接入示例](https://cnzeropro.github.io/live2d-widget/demo/demo1.html)
+- [demo2：登录页"门帘"交互示例](https://cnzeropro.github.io/live2d-widget/demo/demo2.html)
 
 本地查看：在仓库根目录启动任意静态服务器后访问 `demo/` 目录，例如：
 
@@ -31,10 +31,10 @@ python -m http.server 8000
 
 ### 方式一：直接引入（使用公共 CDN 与公共模型 API）
 
-在你的页面 `</body>` 前加入：
+在你的页面 `</body>` 前加入（推荐锁定版本号以保证稳定，追新可用 `@master`）：
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/cnzeropro/live2d-widget@master/js/autoload.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/cnzeropro/live2d-widget@v1.6.0/js/autoload.js" defer></script>
 ```
 
 ### 方式二：自定义配置（推荐）
