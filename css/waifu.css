@@ -11,7 +11,7 @@
   position: fixed;
   bottom: 66px;
   writing-mode: vertical-rl; /*竖着书写*/
-  transition: margin-left, font-size, padding-right 1.5s, 1.5s, 1.5s; /*动画效果*/
+  transition: margin-left 1.5s, font-size 1.5s, padding-right 1.5s; /*动画效果*/
 }
 
 #waifu-toggle.waifu-toggle-active {
