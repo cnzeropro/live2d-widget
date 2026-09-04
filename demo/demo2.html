@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <!-- 基础 meta：字符集与视口（禁用缩放，避免"门帘"交互错位） -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
   <title>看板娘登陆平台</title>
 
   <link rel="icon" href="../favicon/favicon.ico">
+  <!-- Bootstrap 仅用于本演示页的表单排版，看板娘组件本身不依赖它 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
         integrity="sha256-T/zFmO5s/0aSwc6ics2KLxlfbewyRz6UNw1s3Ppf5gE=" crossorigin="anonymous">
+  <!-- FontAwesome 4.7：演示页的两个操作图标 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
         integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 
   <style>
-
+    /* 页面整体：居中布局 */
     body {
       display: flex;
       align-items: center;
@@ -22,6 +25,7 @@
       background-color: #f5f5f5;
     }
 
+    /* 登录卡片 */
     .signin {
       width: 500px;
       max-width: 350px;
@@ -32,6 +36,7 @@
       font-weight: 400;
     }
 
+    /* 输入框：上下拼接时共享边框，去掉相邻圆角 */
     .signin .form-control {
       position: relative;
       box-sizing: border-box;
@@ -56,16 +61,19 @@
       border-top-right-radius: 0;
     }
 
+    /* "门帘"舞台：容纳消息区、门帘与画布 */
     #stage {
       position: relative;
     }
 
+    /* 不支持 clip-path 时的降级图片样式 */
     #stage img {
       width: 100%;
       margin-bottom: 20px;
       border-radius: 20px;
     }
 
+    /* 悬浮在舞台两侧的操作按钮（一言 / 换装） */
     #stage a {
       position: absolute;
       width: 2em;
@@ -73,11 +81,13 @@
       border-radius: 50%;
     }
 
+    /* 一言展示区 */
     #msg {
       height: 30px;
       color: #e85eaa;
     }
 
+    /* 圆形裁剪窗口：仅露出画布中央的看板娘 */
     #inner {
       position: relative;
       background-color: #999;
@@ -85,6 +95,7 @@
       -webkit-clip-path: circle(120px at center);
     }
 
+    /* "门帘"：通过 bottom 偏移实现上下开合 */
     #cover {
       position: absolute;
       background-color: #cafaff;
@@ -95,6 +106,7 @@
       box-shadow: 0 0 0 5px #000;
     }
 
+    /* 门帘上的文字 */
     #text {
       position: absolute;
       bottom: 30%;
@@ -105,6 +117,7 @@
       font-weight: bold;
     }
 
+    /* 门帘底部装饰条 */
     #detail {
       position: absolute;
       background: #fff;
@@ -113,6 +126,7 @@
       bottom: 0;
     }
 
+    /* 门把手：点击可手动开 / 关门帘 */
     #handle {
       position: absolute;
       background: #ccc;
@@ -125,16 +139,19 @@
       cursor: pointer;
     }
 
+    /* 左下角：一言按钮 */
     #message {
       left: 40px;
       bottom: 20px;
     }
 
+    /* 右下角：换装按钮 */
     #refresh {
       right: 40px;
       bottom: 20px;
     }
 
+    /* 画布光标提示可拖拽（本演示未启用拖拽，仅保留视觉提示） */
     #live2d {
       cursor: grab;
     }
@@ -147,8 +164,11 @@
 
 <body class="text-center">
 <form class="signin" action="" method="post">
+  <!-- 看板娘舞台 -->
   <div id="stage">
+    <!-- 一言展示区 -->
     <div id="msg"></div>
+    <!-- 圆形裁剪窗口 + 门帘 + 画布 -->
     <div id="inner">
       <div id="cover">
         <div id="text">
@@ -159,8 +179,9 @@
       </div>
       <canvas class="mb-4" id="live2d" width="300" height="300"></canvas>
     </div>
-    <a id="message" href="javascript:message()"><i class="fa fa-comment-o fa-lg" aria-hidden="true"></i></a>
-    <a id="refresh" href="javascript:refresh()"><i class="fa fa-undo fa-lg" aria-hidden="true"></i></a>
+    <!-- 操作按钮：行为在下方脚本中绑定 -->
+    <a id="message" href="#" title="说一句话"><i class="fa fa-comment-o fa-lg" aria-hidden="true"></i></a>
+    <a id="refresh" href="#" title="换个皮肤"><i class="fa fa-undo fa-lg" aria-hidden="true"></i></a>
   </div>
 
   <h4 class="mb-3 font-weight-normal">看板娘登陆平台</h4>
@@ -179,65 +200,81 @@
   </div>
 </form>
 
-<script src="../js/live2d.js" charset="utf-8"></script>
+<!-- Live2D 渲染核心（第三方，提供全局 loadlive2d） -->
+<script src="../lib/live2d.js" charset="utf-8"></script>
 
 <script>
   window.addEventListener("load", () => {
     "use strict";
-    // 页脚填充年份
-    document.getElementById("now").innerText = new Date().getFullYear();
 
-    let apiPath = "https://live2d.fghrsh.net/api", // waifu API
-        oneSentenceAPI = "hitokoto.cn", // 一言 API，可选 'lwl12.com', 'hitokoto.cn', 'jinrishici.com'(古诗词)
-        state = 0, // ”门帘“状态
-        modelId = localStorage.getItem("modelId"), // 模型 ID
-        texturesId = localStorage.getItem("texturesId"); // 材质 ID
+    /* ---------- 常量与状态 ---------- */
 
-    //确保浏览器支持CSS剪切操作
+    const apiPath = "https://live2d.fghrsh.net/api";       // 看板娘 API
+    const hitokotoApi = "hitokoto.cn";                     // 一言 API，可选 'lwl12.com', 'hitokoto.cn', 'jinrishici.com'(古诗词)
+    let coverState = 0;                                         // "门帘"状态：0 关 / 1 半开 / 2 全开
+    let isSwitching = false;                                 // 换装进行中标记（防止动画期间重复触发）
+    let modelId = localStorage.getItem("modelId");         // 模型 ID
+    let texturesId = localStorage.getItem("texturesId");   // 材质 ID
+
+    /* ---------- 环境检测 ---------- */
+
+    // 确保浏览器支持 CSS 剪切操作，不支持时用静态图片降级
     if (!CSS.supports("clip-path", "circle(120px at center)") && !CSS.supports("-webkit-clip-path", "circle(120px at center)")) {
       document.getElementById("stage").innerHTML = '<img src="../img/img1.png" alt="看板娘跑路咯！"/>';
       return;
     }
 
-    // 首次访问加载指定模型的指定材质
+    // 首次访问（无历史记录）加载默认模型与材质
     if (modelId == null) {
       modelId = 1;
       texturesId = 53;
     }
     loadModelAndTextures(modelId, texturesId);
 
-    //加载模型和皮肤
+    /* ---------- 模型加载与切换 ---------- */
+
+    // 加载模型和皮肤，并持久化当前选择
     function loadModelAndTextures(modelId, texturesId) {
       localStorage.setItem("modelId", modelId); // 存储模型 ID
-      if (texturesId === undefined) texturesId = 0; // 如果未传入材质 ID ,默认使用 0 号材质
+      if (texturesId === undefined) texturesId = 0; // 未传入材质 ID 时默认使用 0 号材质
       localStorage.setItem("texturesId", texturesId); // 存储材质 ID
-      loadlive2d("live2d", `${apiPath}/get/?id=${modelId}-${texturesId}`, console.log("live2d", `模型 ${modelId}-${texturesId} 加载完成`));
+      loadlive2d("live2d", `${apiPath}/get/?id=${modelId}-${texturesId}`);
+      console.log(`[waifu] Live2D model ${modelId}-${texturesId} loaded`);
+      // 加载完成后开门帘
       setTimeout(() => {
         coverPosition("80%");
-        state = 2;
+        coverState = 2;
       }, 2000);
     }
 
-    // 材质切换函数
+    // 材质切换函数：向 API 随机取一套新材质后重新加载
     function switchTextures() {
-      const modelId = localStorage.getItem("modelId"),
-          texturesId = localStorage.getItem("texturesId");
-      // 可选 "rand"(随机), "switch"(顺序)
+      const modelId = localStorage.getItem("modelId");
+      const texturesId = localStorage.getItem("texturesId");
       fetch(`${apiPath}/rand_textures/?id=${modelId}-${texturesId}`)
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          })
           .then(result => {
             loadModelAndTextures(modelId, result.textures.id);
             setTimeout(() => {
-              state = 2;
+              coverState = 2;
               coverPosition("80%");
-              document.getElementById("refresh").setAttribute("href", "javascript:refresh()");
             }, 1000);
-          });
+          })
+          .catch(error => {
+            console.error(error);
+            document.getElementById("msg").innerText = "换装失败了呢，稍后再试试吧~";
+          })
+          .finally(() => (isSwitching = false));
     }
 
-    // 显示一言
-    window.message = () => {
-      switch (oneSentenceAPI) {
+    /* ---------- 一言 ---------- */
+
+    // 显示一言（按 hitokotoApi 配置分发到对应接口）
+    function showHitokoto() {
+      switch (hitokotoApi) {
         case "lwl12.com":
           fetch("https://api.lwl12.com/hitokoto/v1?encode=realjson")
               .then(response => response.json())
@@ -263,40 +300,56 @@
           document.getElementById("msg").innerText = "一言 API 设置错误哟~";
       }
     }
-    // 变换”皮肤“
-    window.refresh = () => {
-      state = 0;
-      coverPosition("10%");
-      document.getElementById("refresh").setAttribute("href", "javascript:void(0)");
-      setTimeout(switchTextures, 1000);
-    }
 
-    // “门帘”处理
+    /* ---------- 门帘与事件绑定 ---------- */
+
+    // "门帘"位置控制
     function coverPosition(pos) {
       document.getElementById("cover").style.bottom = pos;
     }
 
-    // 门把手点击事件处理
+    // 页脚填充年份
+    document.getElementById("now").innerText = new Date().getFullYear();
+
+    // 门把手点击：半开 <-> 全开
     document.getElementById("handle").addEventListener("click", () => {
-      if (state === 1) {
-        state = 2;
+      if (coverState === 1) {
+        coverState = 2;
         coverPosition("80%");
-      } else if (state === 2) {
-        state = 1;
+      } else if (coverState === 2) {
+        coverState = 1;
         coverPosition("20%");
       }
     });
-    // 密码框获得焦点时
+
+    // 一言按钮
+    document.getElementById("message").addEventListener("click", event => {
+      event.preventDefault(); // 阻止链接默认跳转
+      showHitokoto();
+    });
+
+    // 换装按钮：先关门帘，再请求新材质
+    document.getElementById("refresh").addEventListener("click", event => {
+      event.preventDefault();
+      if (isSwitching) return; // 动画进行中，忽略重复点击
+      isSwitching = true;
+      coverState = 0;
+      coverPosition("10%");
+      setTimeout(switchTextures, 1000);
+    });
+
+    // 密码框获得焦点时：门帘半开，让出视线
     document.querySelector("input[type=password]").addEventListener("focus", () => {
-      if (state === 2) {
-        state = 1;
+      if (coverState === 2) {
+        coverState = 1;
         coverPosition("20%");
       }
     });
-    // 密码框失去焦点时
+
+    // 密码框失去焦点时：门帘恢复全开
     document.querySelector("input[type=password]").addEventListener("blur", () => {
-      if (state === 1) {
-        state = 2;
+      if (coverState === 1) {
+        coverState = 2;
         coverPosition("80%");
       }
     });

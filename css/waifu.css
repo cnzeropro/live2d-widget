@@ -1,4 +1,14 @@
-/* 看板娘切换按钮css */
+/*!
+ * live2d-widget 看板娘部件样式（v1.6.1）
+ *
+ * 结构：#waifu（容器）
+ *        ├── #waifu-tips  提示框（绝对定位，悬浮于画布上方）
+ *        ├── #live2d      模型画布（尺寸由 JS 按 waifuWidth / waifuHeight 配置写入）
+ *        └── #waifu-tool  工具栏（绝对定位，悬停容器时显示）
+ * 以及独立的 #waifu-toggle（关闭后显示的恢复按钮）
+ */
+
+/* ---------- 看板娘切换（恢复）按钮 ---------- */
 #waifu-toggle {
   width: 60px;
   font-size: 12px;
@@ -24,26 +34,26 @@
   padding-right: 10px;
 }
 
-/* end 看板娘切换按钮css */
-
-/* waifu css */
+/* ---------- 看板娘容器 ---------- */
 #waifu {
   position: fixed;
-  bottom: -1000px;
+  bottom: -1000px; /* 初始藏于视口外，由 JS 置 0 后经过渡滑入 */
   transform: translateY(7px);
   transition: transform .3s ease-in-out, bottom 3s ease-in-out;
   z-index: 1;
 }
 
+/* 悬停时轻微上浮，营造"被摸头"的呼吸感 */
 #waifu:hover {
   transform: translateY(3px);
 }
 
-/* end waifu css */
-
-/* waifu>waifu-tips.css */
+/* ---------- 提示框（绝对定位悬浮于画布上方，不占据布局高度） ---------- */
 #waifu-tips {
-  margin: 10px auto;
+  position: absolute; /* 相对 #waifu 定位 */
+  left: 0;
+  right: 0;
+  margin: 10px auto; /* 与 left/right 配合实现水平居中 */
   background-color: #ecd9bc;
   border: 1px solid #e0ba8c;
   border-radius: 12px;
@@ -56,38 +66,38 @@
   text-overflow: ellipsis;
   transition: opacity 1s;
   word-break: break-all;
-  animation: shake 50s ease-in-out 5s infinite;
+  animation: shake 50s ease-in-out 5s infinite; /* 待机抖动动画（延迟 5s 后开始） */
 }
 
+/* 有消息时显示（JS 切换该类控制淡入淡出） */
 #waifu-tips.waifu-tips-active {
   opacity: 1;
   transition: opacity .2s;
 }
 
+/* 消息文案中的 <span> 高亮色 */
 #waifu-tips span {
   color: #e000c0;
 }
 
-/* end waifu>waifu-tips.css */
-
-/* waifu>live2d.css */
+/* ---------- 模型画布（也是原生拖拽的把手） ---------- */
 #waifu #live2d {
+  display: block; /* 消除 inline 元素的基线间隙 */
   cursor: grab;
 }
 
+/* 按住画布（拖拽中）时的抓手光标 */
 #waifu #live2d:active {
   cursor: grabbing;
 }
 
-/* end waifu>live2d.css */
-
-/* waifu>waifu-tool.css */
+/* ---------- 工具栏（悬停容器时浮现） ---------- */
 #waifu-tool {
   color: #aaa;
   opacity: 0;
   position: absolute;
-  right: -25px;
-  top: 80px;
+  right: -25px; /* 悬挂于容器右侧外沿 */
+  top: 80px;    /* 默认顶部偏移，可由 JS 按 waifuToolTop 配置覆盖 */
   transition: opacity 1s;
 }
 
@@ -95,6 +105,7 @@
   opacity: 1;
 }
 
+/* 工具栏按钮（图标字体渲染） */
 #waifu-tool span {
   cursor: pointer;
   color: #5b6c7d;
@@ -105,19 +116,16 @@
 
 #waifu-tool span:hover {
   color: #0684bd;
-  /* #34495e */
 }
 
-/* end waifu>waifu-tool.css */
-
-/*当页面小于 567px 组件消失*/
+/* ---------- 小屏适配：页面宽度不足时隐藏部件 ---------- */
 @media only screen and (max-width: 567px) {
   #waifu {
     display: none;
   }
 }
 
-/* 抖动动画定义 */
+/* ---------- 待机抖动动画（提示框轻微晃动，模拟呼吸感） ---------- */
 @keyframes shake {
   2% {
     transform: translate(.5px, -1.5px) rotate(-.5deg);
@@ -321,13 +329,14 @@
   }
 }
 
-/*自定义字体与图标*/
+/* ---------- 自定义图标字体（FontAwesome 4.7 子集，随组件自托管） ---------- */
 @font-face {
   font-family: "FontAwesomeUI";
-  src: url('../fonts/fontawesome-webfont.eot?v=4.7.0');
-  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('../fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+  src: url('../font/fontawesome-webfont.eot?v=4.7.0');
+  src: url('../font/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('../font/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('../font/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('../font/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('../font/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
 }
 
+/* faui-* 基础样式：屏蔽系统字体渲染干扰 */
 [class^="faui-"],
 [class*="faui-"] {
   font-family: "FontAwesomeUI", serif;
@@ -340,34 +349,35 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.faui-home:before {
+/* ---------- 工具栏图标（Unicode 码位对应 FontAwesome 4.7 字形） ---------- */
+.faui-home:before {      /* 主页：home */
   content: "\f015";
 }
 
-.faui-msg:before {
+.faui-msg:before {       /* 一言：comment */
   content: "\f075";
 }
 
-.faui-game:before {
+.faui-game:before {      /* 小游戏：paper-plane */
   content: "\f1d8";
 }
 
-.faui-model:before {
+.faui-model:before {     /* 换人：user */
   content: "\f007";
 }
 
-.faui-textures:before {
+.faui-textures:before {  /* 换装：repeat */
   content: "\f21d";
 }
 
-.faui-photo:before {
+.faui-photo:before {     /* 截图：camera */
   content: "\f03e";
 }
 
-.faui-about:before {
+.faui-about:before {     /* 关于：info */
   content: "\f129";
 }
 
-.faui-remove:before {
+.faui-remove:before {    /* 关闭：close */
   content: "\f00d";
 }

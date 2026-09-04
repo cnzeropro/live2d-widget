@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <!-- 基础 meta：字符集、兼容性标记与视口（禁用缩放，避免看板娘错位） -->
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
@@ -8,6 +9,7 @@
   <title>Live2D 看板娘</title>
   <link rel="icon" href="../favicon/favicon.ico"/>
 
+  <!-- 右上角 GitHub 角标样式 -->
   <style>
     #github svg {
       width: 95px;
@@ -21,6 +23,7 @@
       transition: all 1.5s;
     }
 
+    /* 悬停时角标放大，露出章鱼猫全身 */
     #github:hover svg {
       width: 190px;
       height: 190px;
@@ -29,6 +32,7 @@
 </head>
 
 <body>
+<!-- GitHub 仓库角标（SVG 内联，无外部请求） -->
 <a id="github" href="https://github.com/cnzeropro/live2d-widget" target="_blank" title="Visit the code on GitHub!">
   <svg viewBox="0 0 250 250" aria-hidden="true">
     <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
@@ -39,6 +43,7 @@
   </svg>
 </a>
 
+<!-- 看板娘入口：引入 autoload.js 即自动加载全部资源并初始化，无需其他配置 -->
 <script src="../js/autoload.js" charset="utf-8"></script>
 </body>
 </html>
