@@ -2,8 +2,23 @@
 
 网页 Live2D 看板娘组件 —— 在你的网站右下角放一只会说话、能换装、可交互的萌娘。
 
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
+[![Release](https://img.shields.io/github/v/release/cnzeropro/live2d-widget?color=blue)](https://github.com/cnzeropro/live2d-widget/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)](#第三方库说明)
+
+## 目录
+
+- [功能特性](#功能特性)
+- [在线演示](#在线演示)
+- [快速开始](#快速开始)
+- [配置项参考](#配置项参考)
+- [自定义消息文案](#自定义消息文案)
+- [本地调试](#本地调试)
+- [目录结构](#目录结构)
+- [已知行为说明](#已知行为说明)
+- [第三方库说明](#第三方库说明)
+- [致谢](#致谢)
+- [许可证](#许可证)
 
 ## 功能特性
 
@@ -20,12 +35,7 @@
 - [demo1：基础接入示例](https://cnzeropro.github.io/live2d-widget/demo/demo1.html)
 - [demo2：登录页"门帘"交互示例](https://cnzeropro.github.io/live2d-widget/demo/demo2.html)
 
-本地查看：在仓库根目录启动任意静态服务器后访问 `demo/` 目录，例如：
-
-```bash
-python -m http.server 8000
-# 浏览器打开 http://localhost:8000/demo/demo1.html
-```
+本地运行 demo 的方式见[本地调试](#本地调试)章节。
 
 ## 快速开始
 
@@ -55,13 +65,13 @@ python -m http.server 8000
 
 ## 配置项参考
 
-`js/autoload.js` 中的全部配置项：
+`js/autoload.js` 中的全部配置项。
 
 ### 后端接口
 
 | 配置项 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `resourcePath` | string | jsDelivr 自建源 | 资源根目录，CSS / JS / 字体及各相对路径配置均基于它解析 |
+| `resourcePath` | string | jsDelivr `@master` 追新源 | 资源根目录（始终跟随最新提交），CSS / JS / 字体及各相对路径配置均基于它解析 |
 | `waifuApi` | string | `https://live2d.fghrsh.net/api` | 看板娘模型 API，自建参考 [live2d_api](https://github.com/fghrsh/live2d_api) |
 | `tipsPath` | string | `json/waifu-tips.json` | 消息文案 JSON 路径（相对 `resourcePath` 解析，也可填完整 URL） |
 | `hitokotoApi` | object | 见下 | 一言数据源（需返回 JSON），字段映射配置 |
@@ -77,8 +87,6 @@ hitokotoApi: {
 }
 ```
 
-例如切换到古诗词接口：`{ url: "https://v2.jinrishici.com/one.json", text: "data.content", from: "data.origin.title" }`，并可配合修改 JSON 中 `hitokoto.source` 模板调整来源文案。
-
 常用一言服务配置示例（直接替换 `hitokotoApi` 的值即可）：
 
 ```js
@@ -88,7 +96,7 @@ hitokotoApi: { url: "https://v1.hitokoto.cn", text: "hitokoto", from: "from", cr
 // lwl12.com
 hitokotoApi: { url: "https://api.lwl12.com/hitokoto/v1?encode=realjson", text: "text", from: "source", creator: "author" };
 
-// jinrishici.com（古诗词）
+// jinrishici.com（古诗词，展示点路径写法）
 hitokotoApi: { url: "https://v2.jinrishici.com/one.json", text: "data.content", from: "data.origin.title", creator: "data.origin.author" };
 ```
 
@@ -198,6 +206,18 @@ asteroidsPath: "lib/asteroids.min.js", // "打飞机"小游戏
 
 `text` 均可传数组随机抽取一条，且支持内联 HTML（`<span>` 高亮等）。
 
+## 本地调试
+
+```bash
+# 1. 启动静态服务器
+python -m http.server 8000
+
+# 2. 打开示例页
+# http://localhost:8000/demo/demo1.html
+```
+
+调试本地代码时，将 `js/autoload.js` 中的 `resourcePath` 临时改为 `http://localhost:8000/` 即可。
+
 ## 目录结构
 
 ```text
@@ -217,21 +237,9 @@ live2d-widget/
 │   └── asteroids.min.js   # 彩蛋小游戏（官方代码镜像，按需懒加载）
 ├── json/
 │   └── waifu-tips.json    # 消息文案配置
-├── favicon/
+├── favicon/               # 示例页站点图标
 └── LICENSE                # MIT
 ```
-
-## 本地调试
-
-```bash
-# 1. 启动静态服务器
-python -m http.server 8000
-
-# 2. 打开示例页
-# http://localhost:8000/demo/demo1.html
-```
-
-调试本地代码时，将 `js/autoload.js` 中的 `resourcePath` 临时改为 `http://localhost:8000/` 即可。
 
 ## 已知行为说明
 
@@ -251,12 +259,11 @@ python -m http.server 8000
 
 - `live2d.js.map`（source map）已于 v1.6.1 移除，仅调试用途，生产环境无需加载
 - **为什么不直接换"官方最新核心"**：官方现行分发的 Cubism 核心（如 npm `live2d-widgets@1` 内的 `live2d.min.js`、Cubism 5 的 `live2dcubismcore.min.js`）不暴露 `loadlive2d` / `Live2D.captureFrame` 接口，与本组件的模型 API 不兼容；如需迁移请参考 [stevenjoezhang/live2d-widget](https://github.com/stevenjoezhang/live2d-widget) 的 TypeScript 重写版
-- 若希望直接使用第三方 CDN 源，可通过配置项覆盖（留空则使用自托管默认值）：
+- 资源路径配置默认相对 `resourcePath` 解析自托管文件；改为完整 URL 即可直连第三方源（已验证可用的第三方镜像示例）：
 
 ```js
-// 注意：社区 CDN 上的 live2d 核心（如下例）不含 loadlive2d，与本组件不兼容，仅 asteroids 镜像可直接使用
-waifuSettings.live2dCorePath = ""; // 保持自托管
-waifuSettings.asteroidsPath = "https://cdn.jsdelivr.net/gh/benjy8001/websiteasteroids@master/asteroids.min.js"; // 官方代码的 jsDelivr 镜像（已验证可用）
+// 注意：社区 CDN 上的 live2d 核心不含 loadlive2d，与本组件不兼容，请保持 live2dCorePath 自托管
+waifuSettings.asteroidsPath = "https://cdn.jsdelivr.net/gh/benjy8001/websiteasteroids@master/asteroids.min.js";
 ```
 
 > 自托管为默认推荐方式：版本锁定、无跨域 / 可用性风险；第三方源仅在自建资源不可用时作为备选。
