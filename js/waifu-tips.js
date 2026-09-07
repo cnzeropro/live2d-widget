@@ -557,7 +557,8 @@
         window.ASTEROIDSPLAYERS.push(new Asteroids());
       } else {
         const script = document.createElement("script");
-        script.src = waifuSettings.asteroidsPath;
+        // 相对路径基于 resourcePath 解析（与渲染核心一致走 CDN 配置）
+        script.src = resolveResource(waifuSettings.asteroidsPath);
         script.onerror = () => console.error("[waifu] Failed to load asteroids script");
         document.head.appendChild(script);
       }
