@@ -13,7 +13,7 @@
  */
 window.waifuSettings = {
   // ---------- 后端接口 ----------
-  resourcePath: "https://cdn.jsdelivr.net/gh/cnzeropro/live2d-widget/", // 资源根目录，下方相对路径均基于它解析，整体换源只改这一处
+  resourcePath: "https://cdn.jsdelivr.net/gh/cnzeropro/live2d-widget@v1.6.1/", // 资源根目录，下方相对路径均基于它解析，整体换源只改这一处；@v1.6.1 为版本锁定（无版本路径受 CDN 分支缓存影响，升级时同步修改此处与 tag）
   waifuApi: "https://live2d.fghrsh.net/api", // 看板娘 API，自建参考 https://github.com/fghrsh/live2d_api
   tipsPath: "json/waifu-tips.json", // 消息文案 JSON 路径（相对 resourcePath）
 
