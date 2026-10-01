@@ -41,7 +41,7 @@
 
 ### 方式一：直接引入（使用公共 CDN 与公共模型 API）
 
-在你的页面 `</body>` 前加入（推荐锁定版本号以保证稳定，追新可用 `@master`）：
+在你的页面 `</body>` 前加入（推荐锁定版本号以保证稳定，追新可用 `@main`）：
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cnzeropro/live2d-widget@v1.6.1/js/autoload.js" defer></script>
@@ -71,7 +71,7 @@
 
 | 配置项 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `resourcePath` | string | jsDelivr `@master` 追新源 | 资源根目录（始终跟随最新提交），CSS / JS / 字体及各相对路径配置均基于它解析 |
+| `resourcePath` | string | jsDelivr `@main` 追新源 | 资源根目录（始终跟随最新提交），CSS / JS / 字体及各相对路径配置均基于它解析 |
 | `waifuApi` | string | `https://live2d.fghrsh.net/api` | 看板娘模型 API，自建参考 [live2d_api](https://github.com/fghrsh/live2d_api) |
 | `tipsPath` | string | `json/waifu-tips.json` | 消息文案 JSON 路径（相对 `resourcePath` 解析，也可填完整 URL） |
 | `hitokotoApi` | object | 见下 | 一言数据源（需返回 JSON），字段映射配置 |
