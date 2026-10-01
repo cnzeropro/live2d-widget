@@ -1,5 +1,10 @@
-# 统一行尾：文本文件以 LF 存入仓库，Windows 批处理脚本保持 CRLF
-* text=auto
-*.sh  text eol=lf
-*.cmd text eol=crlf
-*.bat text eol=crlf
+# 文本文件自动识别并统一以 LF 存入仓库
+* text=auto eol=lf
+
+# 二进制文件不参与文本归一化与 diff
+*.png binary
+*.ico binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary

@@ -9,5 +9,8 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
+[*.{js,html,css,json}]
+indent_size = 2
+
 [*.md]
 trim_trailing_whitespace = false
